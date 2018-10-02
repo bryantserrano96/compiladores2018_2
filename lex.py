@@ -36,9 +36,9 @@ def lexer( data ):
 		#call function without space, \n or a \t
 		lexer( slice( data,1 ) )		
 	#case theres a re that matches [a-zA-Z]+\w
-	if re.match(w,data):
+	if re.match( w,data ):
 		#save match in variable
-		a = re.match(w,data)
+		a = re.match( w,data )
 		#condition it's not a reserved word
 		if a.group() not in reserved:
 			#add it to list "lex"
@@ -58,5 +58,10 @@ def lexer( data ):
 			else: add( tag[ a.group() ] , a.group() )
 			#after adding to lex, call function again without the matched word
 			lexer( slice( data,len( a.group() ) ) )
+		#case character isn't defined
+		else:
+			#print error and exit program
+			print( "Lexer Error" )
+			break
 	#return list "lex" with tokens 		
 	return lex
