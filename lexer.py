@@ -1,179 +1,62 @@
-#Serrano Sanchez Bryant Ricardo
-#Compiladores - Lexer
-from sys import *
+#Use library re module for regular expressions
+import re
 
-#read content from file
-def open_file(file):
-	data = open(file,"r").read()
-	return data
+#declare a list to store tokens
+lex = []
 
-#lex function
-def lex(content):
-	token = ""
+#function to add items into list "lex"
+def add(a,b):
+	aux = []
+	aux.append(a)
+	aux.append(b)
+	lex.append(aux)
 
-	flag_s = 0
-	string = ""
+#function to slice word with a givin position
+def slice(string,i):
+	return string[i:]
 
-	flag_i = 0
-	integer = ""
+#set of regular expressions
+c = '[(){};-]'
+n = '\d+'
+w = '[a-zA-Z]+\w'
 
-	lexer = []
-	#save the content of file as list
-	content = list(content)
+#list of regular expressions
+tokens = ["int","return",c,n,"~","!"]
 
+reserved = ["int","return"]
+
+#dictionay to tag a token with its name
+tag = {'(':"OPEN PA",')':"CLOSE PA",'{':"OPEN BR",'}':"CLOSE BR",';':"SEMIC",'-':"Negation",
+'~':"Bitwise complement",'!':"Logical Negation",'int':"INT K",'return':"RETURN K",1:"INT",2:"IDENTIFIER"}
+
+#function lexer
+def lexer(data):
+	#case there's a space, \n or a \t
+	if re.match('\s',data):
+		#call function without space, \n or a \t
+		lexer( slice(data,1) )		
+	#case theres a re that matches [a-zA-Z]+\w and doesnt equal int o return
+	if re.match(w,data):
+		#save match in variable
+		a = re.match(w,data)
+
+		if a.group() not in reserved:
+			#add it to list lex
+			add( tag[2],a.group() )
+			#call function lexer without the word matched and added to list lex
+			lexer( slice(data,len(a.group())) )
 	
-	for char in content:
-		token += char
-		if token == " " and flag_s != 1:
-			token = ""				
-
-		elif token == '\t' and flag_s != 1:
-			token = ""
-
-		elif token == '\n' and flag_s != 1:
-			token = ""
-			
-		elif token == "{":
-			new_item = []
-			new_item.append("openBrace")
-			new_item.append(token)
-			lexer.append(new_item)
-			
-			token = ""
-
-		elif token == "}":
-			new_item = []
-			new_item.append("closeBrace")
-			new_item.append(token)
-			lexer.append(new_item)
-
-			token = ""
-
-		elif token == "(":
-			new_item = []
-			new_item.append("openParenthesis")
-			new_item.append(token)
-			lexer.append(new_item)
-			
-			token = ""
-
-		elif token == ")":
-			new_item = []
-			new_item.append("closeParenthesis")
-			new_item.append(token)
-			lexer.append(new_item)
-			
-			token = ""		
-
-		#when using multi-digit integers: untill lexer finds a semicolon, it inserts the integer	
-		elif token == ";":
-	
-			if integer != "" and flag_i == 0:
-
-				new_item = []
-				new_item.append("ID INT")
-				new_item.append(integer)
-				lexer.append(new_item)
-				integer = ""	
-
-			new_item = []
-			new_item.append("semicolon")
-			new_item.append(token)
-			lexer.append(new_item)
-			
-			"""elif expr != "" and isexpr == 0:
-				print(expr + "num")
-				expr = ""
-			"""
-
-			token = ""		
-				
-		elif token == "int":
-			new_item = []
-			new_item.append("INT KEYWORD")
-			new_item.append(token)
-			lexer.append(new_item)
-			
-			token = ""
-
-		elif token == "return":
-			new_item = []
-			new_item.append("RETURN KEYWORD")
-			new_item.append(token)
-			lexer.append(new_item)
-			
-			token = ""
-			
-		elif token == "main":
-			new_item = []
-			new_item.append("MAIN KEYWORD")
-			new_item.append(token)
-			lexer.append(new_item)
-			
-			token = ""
-
-		elif token == "print":
-			new_item = []
-			new_item.append("PRINT KEYWORD")
-			new_item.append(token)
-			lexer.append(new_item)
-			
-			token = ""
-
-		elif token == "\"":
-			
-			if flag_s == 0:
-				flag_s = 1
-			elif flag_s == 1:
-				new_item = []
-				new_item.append("ID STRING")
-				new_item.append(string)
-				lexer.append(new_item)
-				
-				string = ""
-				flag_s = 0
-				token = ""
-
-		elif flag_s == 1:
-			string += char
-			token = ""
-
-		elif token == "0" or token == "1" or token == "2" or token == "3" or token == "4" or token == "5" or token == "6" or token == "7" or token == "8" or token == "9":
-
-			integer += token
-			token = ""
-		
-
-		"""elif token == "+":
-			isexpr = 1
-			expr += token
-			token = ""
-		"""	
-	return lexer
-	
-
-def parse(tokens):
-
-
-	par = []
-
-	if len(tokens) == 0:
-		print("ERROR: SOURCE CODE EMPTY")
-
-	else:
-		for sublist in tokens:
-			if sublist[0] == 'MAIN KEYWORD':
-				print("found main")
-			
-
-
-def run():
-    #file's name goes as second parameter in command line
-	data = open_file(argv[1])
-	print(lex(data))
-
-
-
-run() 
-
-
+	#iterate through list of tokens
+	for t in tokens:
+		#case theres a match
+		if re.match(t,data):
+			#save match in variable
+			a = re.match(t,data)
+			#case if its a number
+			if re.match(n,data): add( tag[1] , a.group() )
+			#any other case
+			else: add( tag[a.group()] , a.group() )
+			#after adding to lex, call function again without the matched word
+			lexer( slice(data,len(a.group())) )
+	#return list lex with tokens 		
+	return lex
