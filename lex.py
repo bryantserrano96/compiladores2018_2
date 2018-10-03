@@ -45,7 +45,7 @@ def lexer( data ):
 			#case matches a number
 			if re.match( n,data ): add( tag[1],a.group() )
 			#case matches a word
-			elif re.match(w,data):
+			elif re.match( w,data ):
 				#case matches a word and NOT a reserverd word
 				if a.group() not in reserved: add( tag[2],a.group() )
 				#case matches a word and it's a reserved word (keyword)
