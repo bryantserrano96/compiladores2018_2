@@ -1,8 +1,8 @@
-#Use library re module for regular expressions
-import re
+#use library re module for regular expressions
+import re 
 
-#declare a list to store tokens
-lex = []
+#declare a list "lex" to store tokens
+lex = [] 
 
 #function to add items into list "lex"
 def add( a,b ):
@@ -12,22 +12,23 @@ def add( a,b ):
 	lex.append( aux )
 
 #function to slice word with a givin position
-def slice( string,i ):
-	return string[ i: ]
+def slice( string,i ): 
+	return string[i:]
 
 #set of regular expressions
-c = '[ (){};- ]'
+c = '[(){};-]'
 n = '\d+'
-w = '[ a-zA-Z ]+\w'
+w = '[a-zA-Z]+\w'
 
 #list of regular expressions
-tokens = [ "int","return",c,n,"~","!" ]
+tokens = [c,n,w,"~","!"]
 
-reserved = [ "int","return" ]
+#list of reserved words
+reserved = ["int","return"]
 
-#dictionary to tag a token with its name
-tag = { '(':"OPEN PA",')':"CLOSE PA",'{':"OPEN BR",'}':"CLOSE BR",';':"SEMIC",'-':"Negation",
-'~':"Bitwise complement",'!':"Logical Negation",'int':"INT K",'return':"RETURN K",1:"INT",2:"IDENTIFIER" }
+#dictionay to tag tokens
+tag = {'(':"OPEN PA",')':"CLOSE PA",'{':"OPEN BR",'}':"CLOSE BR",';':"SEMIC",'-':"Negation",
+'~':"Bitwise complement",'!':"Logical Negation",'int':"INT K",'return':"RETURN K",1:"INT",2:"IDENTIFIER"}
 
 #function lexer
 def lexer( data ):
@@ -35,33 +36,23 @@ def lexer( data ):
 	if re.match( '\s',data ):
 		#call function without space, \n or a \t
 		lexer( slice( data,1 ) )		
-	#case theres a re that matches [a-zA-Z]+\w
-	if re.match( w,data ):
-		#save match in variable
-		a = re.match( w,data )
-		#condition it's not a reserved word
-		if a.group() not in reserved:
-			#add it to list "lex"
-			add( tag[ 2 ],a.group() )
-			#call function lexer without the word matched
-			lexer( slice( data,len( a.group() ) ) )
-	
 	#iterate through list of tokens
 	for t in tokens:
-		#case theres a match
+		#case there's a match
 		if re.match( t,data ):
 			#save match in variable
 			a = re.match( t,data )
-			#case if its a number
-			if re.match( n,data ): add( tag[ 1 ] , a.group() )
-			#any other case "match"
-			else: add( tag[ a.group() ] , a.group() )
-			#after adding to lex, call function again without the matched word
+			#case matches a number
+			if re.match( n,data ): add( tag[1],a.group() )
+			#case matches a word
+			elif re.match(w,data):
+				#case matches a word and NOT a reserverd word
+				if a.group() not in reserved: add( tag[2],a.group() )
+				#case matches a word and it's a reserved word (keyword)
+				else: add( tag[a.group()],a.group() )
+			#anyother case (single characters tokens)	
+			else: add( tag[a.group()],a.group() )
+			#after adding to list "lex", call function again without the matched word
 			lexer( slice( data,len( a.group() ) ) )
-		#case character isn't defined
-		else:
-			#print error and exit program
-			print( "Lexer Error" )
-			break
-	#return list "lex" with tokens 		
+	#return list lex with tokens 		
 	return lex
