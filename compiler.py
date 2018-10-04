@@ -20,5 +20,5 @@ data = open_file( argv[1] )
 #runs lexer, parser and generate programs over data
 generate.write( parser.parse_program( lex.lexer( data ) ) )
 
-#creates executabe assembly
+#creates assembly executabe
 os.system("gcc -m64 assembly.s -o out")
