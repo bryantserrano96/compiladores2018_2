@@ -17,8 +17,11 @@ def open_file( file ):
 #stores data from second argument in terminal
 data = open_file( argv[1] )
 
-#runs lexer, parser and generate programs over data
-generate.write( parser.parse_program( lex.lexer( data ) ) )
+#creates instance of Lexer
+x = lex.Lexer( data )
+
+#runs lexer, parser and generate progrmas over data
+generate.write( parser.parse_program( x.lex( data ) ) )
 
 #creates assembly executabe
 os.system("gcc -m64 assembly.s -o out")
