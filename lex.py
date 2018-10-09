@@ -1,17 +1,15 @@
-#use library re module for regular expressions
+#use re module for regular expressions
 import re 
 
-#function to slice word with a givin position
-def slice(string,i):
-	return string[i:]
+#list "l" to stock tokens
+l = []
 
 #function to add items into list "l"
-def add( a,b,c ):
+def add( a,b ):
 	aux = []
+	aux.append( a )
 	aux.append( b )
-	aux.append( c )
-	a.append( aux )
-
+	l.append( aux )
 
 #set of regular expressions
 c = '[(){};-]'
@@ -29,14 +27,14 @@ tag = {'(':"OPEN PA",')':"CLOSE PA",'{':"OPEN BR",'}':"CLOSE BR",';':"SEMIC",'-'
 '~':"Bitwise complement",'!':"Logical Negation",'int':"INT K",'return':"RETURN K",1:"INT",2:"IDENTIFIER"}
 
 class Lexer:
-	#Unique list "l",position error and size for each instance
+
+	#unique position error and size for each instance
 	def __init__( self,data ):
-		self.l = []
 		self.pos_error = 0
 		self.size = len( data )
 
-	#function lexer
 	def lex( self,data ):
+
 		#case there's a space, \n or a \t
 		if re.match( '\s',data ):
 
@@ -44,8 +42,8 @@ class Lexer:
 			self.pos_error = self.pos_error + 1
 			self.size = self.size - 1
 
-			#call function without space, \n or a \t
-			self.lex( slice( data,1 ) )		
+			#calls function without space, \n or a \t (1 character)
+			self.lex( data[1:] )		
 
 		#iterate through list of tokens
 		for t in tokens:
@@ -57,32 +55,32 @@ class Lexer:
 				a = re.match( t,data )
 
 				#case matches a number
-				if re.match( n,data ): add( self.l,tag[1],a.group() )
+				if re.match( n,data ): add( tag[1],a.group() )
 
 				#case matches a word
 				elif re.match( w,data ):
 
 					#case matches a word and NOT a reserverd word
-					if a.group() not in reserved: add( self.l,tag[2],a.group() )
+					if a.group() not in reserved: add( tag[2],a.group() )
 
-					#case matches a word and it's a reserved word (keyword)
-					else: add( self.l,tag[a.group()],a.group() )
+					#case matches a word and it's a keyword (reserved word)
+					else: add( tag[a.group()],a.group() )
 
 				#anyother case (single characters tokens)	
-				else: add( self.l,tag[a.group()],a.group() )
+				else: add( tag[a.group()],a.group() )
 
-				#update position and size
+				#update position and size (length of matched word)
 				self.pos_error = self.pos_error + len( a.group() )
 				self.size = self.size - len( a.group() )
 
-				#after adding to list "lex", call function again without the matched word
-				self.lex( slice( data,len( a.group() ) ) )
+				#after adding to list "l", calls function without the matched word
+				self.lex( data[len( a.group()):] )
 
 		#returns list of tokens if it checked the whole string
 		if self.size == 0:
-			return self.l 
+			return l 
 
-		#returns error in case a character unknown is found
+		#returns error in case an unkown character is found
 		else:
 			print ("Lexer Error after position: "+str( self.pos_error ) )
 			exit()
